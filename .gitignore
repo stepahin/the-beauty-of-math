@@ -7,3 +7,4 @@ dist/
 .env.production.local
 .vite/
 CLAUDE.md
+illustrations_crawler_state.json
