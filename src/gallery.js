@@ -141,7 +141,7 @@ export class MasonryGallery {
             item.appendChild(placeholder)
             
             const img = document.createElement('img')
-            img.dataset.src = `/mathworld_svgs/${filename}`
+            img.dataset.src = `${import.meta.env.BASE_URL}mathworld_svgs/${filename}`
             img.alt = filename
             img.loading = 'lazy'
             
