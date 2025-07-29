@@ -16,6 +16,19 @@ export default defineConfig({
   server: {
     port: 3000
   },
+  build: {
+    rollupOptions: {
+      output: {
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name && assetInfo.name.endsWith('.svg')) {
+            return 'mathworld_svgs/[name][extname]'
+          }
+          return 'assets/[name]-[hash][extname]'
+        }
+      }
+    }
+  },
+  publicDir: 'public',
   define: {
     '__SVG_FILES__': JSON.stringify(svgFiles)
   }

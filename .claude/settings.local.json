@@ -14,7 +14,10 @@
       "Bash(gh workflow:*)",
       "Bash(gh run list:*)",
       "Bash(gh run view:*)",
-      "Bash(gh api:*)"
+      "Bash(gh api:*)",
+      "Bash(npm run build:github:*)",
+      "Bash(ln:*)",
+      "Bash(ls:*)"
     ],
     "deny": []
   }
