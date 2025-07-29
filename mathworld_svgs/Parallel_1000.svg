@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="130" height="21" viewBox="0 0 130 21">
+<path fill="none" stroke-width="10" stroke-linecap="square" stroke-linejoin="miter" stroke="rgb(0%, 0%, 0%)" stroke-opacity="1" stroke-miterlimit="4" d="M 20 170 L 1280 170 " transform="matrix(0.1, 0, 0, -0.1, 0, 21)"/>
+<path fill="none" stroke-width="10" stroke-linecap="square" stroke-linejoin="miter" stroke="rgb(0%, 0%, 0%)" stroke-opacity="1" stroke-miterlimit="4" d="M 20 40 L 1280 40 " transform="matrix(0.1, 0, 0, -0.1, 0, 21)"/>
+</svg>

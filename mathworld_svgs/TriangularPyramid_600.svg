@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="130.5" height="201.25" viewBox="0 0 130.5 201.25">
+<path fill-rule="nonzero" fill="rgb(67.96875%, 71.484375%, 87.304688%)" fill-opacity="1" d="M 7.613281 138.75 L 102.238281 97.570312 L 109.734375 186.695312 "/>
+<path fill="none" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" stroke="rgb(0%, 0%, 0%)" stroke-opacity="1" stroke-miterlimit="10" d="M 76.424509 619.789272 L 1026.299988 1033.163913 L 1101.548132 138.499162 Z M 76.424509 619.789272 " transform="matrix(0.0996183, 0, 0, -0.0996183, -0.00000000000000322, 200.492366)"/>
+<path fill-rule="nonzero" fill="rgb(80.46875%, 38.989258%, 26.292419%)" fill-opacity="1" d="M 102.238281 97.570312 L 7.613281 138.75 L 77.425781 11.46875 "/>
+<path fill="none" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" stroke="rgb(0%, 0%, 0%)" stroke-opacity="1" stroke-miterlimit="10" d="M 1026.299988 1033.163913 L 76.424509 619.789272 L 777.224318 1897.478448 Z M 1026.299988 1033.163913 " transform="matrix(0.0996183, 0, 0, -0.0996183, -0.00000000000000322, 200.492366)"/>
+<path fill-rule="nonzero" fill="rgb(83.201599%, 76.171875%, 24.804688%)" fill-opacity="1" d="M 109.734375 186.695312 L 102.238281 97.570312 L 77.425781 11.46875 "/>
+<path fill="none" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" stroke="rgb(0%, 0%, 0%)" stroke-opacity="1" stroke-miterlimit="10" d="M 1101.548132 138.499162 L 1026.299988 1033.163913 L 777.224318 1897.478448 Z M 1101.548132 138.499162 " transform="matrix(0.0996183, 0, 0, -0.0996183, -0.00000000000000322, 200.492366)"/>
+<path fill-rule="nonzero" fill="rgb(51.171875%, 29.588318%, 52.34375%)" fill-opacity="1" d="M 7.613281 138.75 L 109.734375 186.695312 L 77.425781 11.46875 "/>
+<path fill="none" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" stroke="rgb(0%, 0%, 0%)" stroke-opacity="1" stroke-miterlimit="10" d="M 76.424509 619.789272 L 1101.548132 138.499162 L 777.224318 1897.478448 Z M 76.424509 619.789272 " transform="matrix(0.0996183, 0, 0, -0.0996183, -0.00000000000000322, 200.492366)"/>
+</svg>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="211" height="100" viewBox="0 0 211 100">
+<path fill-rule="nonzero" fill="rgb(100%, 100%, 100%)" fill-opacity="1" d="M 2 1 L 99 1 L 99 98 L 2 98 L 2 1 "/>
+<path fill="none" stroke-width="10" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(0%, 0%, 0%)" stroke-opacity="1" stroke-miterlimit="4" d="M 20 990 L 990 990 L 990 20 L 20 20 Z M 20 990 " transform="matrix(0.1, 0, 0, -0.1, 0, 100)"/>
+<path fill-rule="nonzero" fill="rgb(0%, 0%, 0%)" fill-opacity="1" d="M 32.5 31.5 L 68.5 31.5 L 68.5 67.5 L 32.5 67.5 L 32.5 31.5 "/>
+<path fill="none" stroke-width="10" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(0%, 0%, 0%)" stroke-opacity="1" stroke-miterlimit="4" d="M 325 685 L 685 685 L 685 325 L 325 325 Z M 325 685 " transform="matrix(0.1, 0, 0, -0.1, 0, 100)"/>
+<path fill-rule="nonzero" fill="rgb(0%, 0%, 0%)" fill-opacity="1" d="M 112 1 L 209 1 L 209 98 L 112 98 L 112 1 "/>
+<path fill="none" stroke-width="10" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(0%, 0%, 0%)" stroke-opacity="1" stroke-miterlimit="4" d="M 1120 990 L 2090 990 L 2090 20 L 1120 20 Z M 1120 990 " transform="matrix(0.1, 0, 0, -0.1, 0, 100)"/>
+<path fill-rule="nonzero" fill="rgb(100%, 100%, 100%)" fill-opacity="1" d="M 142.5 31.5 L 178.5 31.5 L 178.5 67.5 L 142.5 67.5 L 142.5 31.5 "/>
+<path fill="none" stroke-width="10" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(0%, 0%, 0%)" stroke-opacity="1" stroke-miterlimit="4" d="M 1425 685 L 1785 685 L 1785 325 L 1425 325 Z M 1425 685 " transform="matrix(0.1, 0, 0, -0.1, 0, 100)"/>
+</svg>

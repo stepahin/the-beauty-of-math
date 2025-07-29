@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="160" height="80" viewBox="0 0 160 80">
+<path fill="none" stroke-width="4" stroke-linecap="square" stroke-linejoin="miter" stroke="rgb(0%, 0%, 0%)" stroke-opacity="1" stroke-miterlimit="3.25" d="M 800 400 L 160 80 " transform="matrix(0.1, 0, 0, -0.1, 0, 80)"/>
+<path fill="none" stroke-width="4" stroke-linecap="square" stroke-linejoin="miter" stroke="rgb(0%, 0%, 0%)" stroke-opacity="1" stroke-miterlimit="3.25" d="M 800 400 L 160 720 " transform="matrix(0.1, 0, 0, -0.1, 0, 80)"/>
+<path fill="none" stroke-width="4" stroke-linecap="square" stroke-linejoin="miter" stroke="rgb(0%, 0%, 0%)" stroke-opacity="1" stroke-miterlimit="3.25" d="M 800 400 L 1440 80 " transform="matrix(0.1, 0, 0, -0.1, 0, 80)"/>
+<path fill="none" stroke-width="4" stroke-linecap="square" stroke-linejoin="miter" stroke="rgb(0%, 0%, 0%)" stroke-opacity="1" stroke-miterlimit="3.25" d="M 800 400 L 1440 720 " transform="matrix(0.1, 0, 0, -0.1, 0, 80)"/>
+<path fill="none" stroke-width="4" stroke-linecap="square" stroke-linejoin="miter" stroke="rgb(0%, 0%, 0%)" stroke-opacity="1" stroke-miterlimit="3.25" d="M 160 80 L 160 720 " transform="matrix(0.1, 0, 0, -0.1, 0, 80)"/>
+<path fill="none" stroke-width="4" stroke-linecap="square" stroke-linejoin="miter" stroke="rgb(0%, 0%, 0%)" stroke-opacity="1" stroke-miterlimit="3.25" d="M 1440 80 L 1440 720 " transform="matrix(0.1, 0, 0, -0.1, 0, 80)"/>
+<path fill="none" stroke-width="40" stroke-linecap="round" stroke-linejoin="miter" stroke="rgb(100%, 0%, 0%)" stroke-opacity="1" stroke-miterlimit="3.25" d="M 800 400 L 800 400 " transform="matrix(0.1, 0, 0, -0.1, 0, 80)"/>
+<path fill="none" stroke-width="40" stroke-linecap="round" stroke-linejoin="miter" stroke="rgb(100%, 0%, 0%)" stroke-opacity="1" stroke-miterlimit="3.25" d="M 160 80 L 160 80 " transform="matrix(0.1, 0, 0, -0.1, 0, 80)"/>
+<path fill="none" stroke-width="40" stroke-linecap="round" stroke-linejoin="miter" stroke="rgb(100%, 0%, 0%)" stroke-opacity="1" stroke-miterlimit="3.25" d="M 160 720 L 160 720 " transform="matrix(0.1, 0, 0, -0.1, 0, 80)"/>
+<path fill="none" stroke-width="40" stroke-linecap="round" stroke-linejoin="miter" stroke="rgb(100%, 0%, 0%)" stroke-opacity="1" stroke-miterlimit="3.25" d="M 1440 80 L 1440 80 " transform="matrix(0.1, 0, 0, -0.1, 0, 80)"/>
+<path fill="none" stroke-width="40" stroke-linecap="round" stroke-linejoin="miter" stroke="rgb(100%, 0%, 0%)" stroke-opacity="1" stroke-miterlimit="3.25" d="M 1440 720 L 1440 720 " transform="matrix(0.1, 0, 0, -0.1, 0, 80)"/>
+</svg>

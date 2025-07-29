@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="226" height="59" viewBox="0 0 226 59">
+<path fill="none" stroke-width="10" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(0%, 0%, 0%)" stroke-opacity="1" stroke-miterlimit="4" d="M 20 580 L 20 20 " transform="matrix(0.1, 0, 0, -0.1, 0, 59)"/>
+<path fill="none" stroke-width="10" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(0%, 0%, 0%)" stroke-opacity="1" stroke-miterlimit="4" d="M 575 580 L 575 20 " transform="matrix(0.1, 0, 0, -0.1, 0, 59)"/>
+<path fill="none" stroke-width="10" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(0%, 0%, 0%)" stroke-opacity="1" stroke-miterlimit="4" d="M 1130 580 L 1130 20 " transform="matrix(0.1, 0, 0, -0.1, 0, 59)"/>
+<path fill="none" stroke-width="10" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(0%, 0%, 0%)" stroke-opacity="1" stroke-miterlimit="4" d="M 1685 580 L 1685 20 " transform="matrix(0.1, 0, 0, -0.1, 0, 59)"/>
+<path fill="none" stroke-width="10" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(0%, 0%, 0%)" stroke-opacity="1" stroke-miterlimit="4" d="M 2240 580 L 2240 20 " transform="matrix(0.1, 0, 0, -0.1, 0, 59)"/>
+<path fill="none" stroke-width="10" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(0%, 0%, 0%)" stroke-opacity="1" stroke-miterlimit="4" d="M 20 580 L 2240 580 " transform="matrix(0.1, 0, 0, -0.1, 0, 59)"/>
+<path fill="none" stroke-width="10" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(0%, 0%, 0%)" stroke-opacity="1" stroke-miterlimit="4" d="M 20 20 L 2240 20 " transform="matrix(0.1, 0, 0, -0.1, 0, 59)"/>
+<path fill="none" stroke-width="10" stroke-linecap="square" stroke-linejoin="miter" stroke="rgb(0%, 0%, 0%)" stroke-opacity="1" stroke-miterlimit="4" d="M 20 580 L 20 580 " transform="matrix(0.1, 0, 0, -0.1, 0, 59)"/>
+<path fill="none" stroke-width="10" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(0%, 0%, 0%)" stroke-opacity="1" stroke-dasharray="100 40" stroke-miterlimit="4" d="M 2237.5 580 L 1682.5 25 L 1127.5 580 L 572.5 22.5 L 25 572.5 " transform="matrix(0.1, 0, 0, -0.1, 0, 59)"/>
+<path fill="none" stroke-width="10" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(0%, 0%, 0%)" stroke-opacity="1" stroke-dasharray="100 40" stroke-miterlimit="4" d="M 2247.5 12.5 L 1692.5 567.5 L 1137.5 12.5 L 582.5 570 L 35 20 " transform="matrix(0.1, 0, 0, -0.1, 0, 59)"/>
+</svg>

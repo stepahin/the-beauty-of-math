@@ -1,0 +1,245 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif:wght@200;600&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg-color: white;
+    --text-color: #333;
+    --text-secondary: #000000;
+    --card-bg: transparent;
+    --shadow-color: rgba(0,0,0,0.1);
+    --shadow-hover: rgba(0,0,0,0.15);
+    --link-color: #0066cc;
+}
+
+[data-theme="dark"] {
+    --bg-color: #000000;
+    --text-color: #e0e0e0;
+    --text-secondary: #ffffff;
+    --card-bg: transparent;
+    --shadow-color: rgba(255,255,255,0.1);
+    --shadow-hover: rgba(255,255,255,0.15);
+    --link-color: #66b3ff;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    padding: 20px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.top-controls {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    z-index: 1000;
+}
+
+.load-counter {
+    font-family: 'Noto Serif', serif;
+    font-weight: 200;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.theme-toggle {
+    background: transparent;
+    border: none;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-color);
+}
+
+.theme-toggle:hover {
+    transform: scale(1.1);
+}
+
+.theme-icon {
+    position: absolute;
+    transition: opacity 0.3s;
+    width: 24px;
+    height: 24px;
+}
+
+[data-theme="light"] .theme-icon.dark {
+    opacity: 0;
+}
+
+[data-theme="dark"] .theme-icon.light {
+    opacity: 0;
+}
+
+.header {
+    text-align: left;
+    margin-bottom: 50px;
+    padding-top: 40px;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.main-title {
+    font-family: 'Noto Serif', serif;
+    font-size: clamp(4.5rem, 15vw, 10.5rem);
+    font-weight: 600;
+    font-stretch: 62.5%;
+    color: var(--text-secondary);
+    margin-bottom: 30px;
+    letter-spacing: -0.02em;
+    line-height: 0.9;
+}
+
+.attribution {
+    font-family: 'Noto Serif', serif;
+    font-weight: 200;
+    font-stretch: 100%;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    margin-bottom: 20px;
+}
+
+.attribution p {
+    margin: 0;
+}
+
+.attribution a {
+    color: var(--text-secondary);
+    text-decoration: underline;
+    transition: opacity 0.2s;
+}
+
+.attribution a:hover {
+    opacity: 0.7;
+}
+
+.info {
+    text-align: left;
+    color: var(--text-color);
+    opacity: 0.6;
+    font-size: 1.1rem;
+}
+
+.masonry-container {
+    max-width: 100%;
+    margin: 0 auto;
+    position: relative;
+}
+
+.masonry-grid {
+    display: flex;
+    gap: 20px;
+    position: relative;
+    align-items: flex-start; /* Выравниваем колонки по верху */
+}
+
+.masonry-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 0; /* Предотвращаем проблемы с flex */
+}
+
+.masonry-item {
+    background: transparent;
+    border-radius: 8px;
+    padding: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.masonry-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.masonry-item img.loaded {
+    opacity: 1;
+}
+
+/* Инверсия цветов SVG в темной теме */
+[data-theme="dark"] .masonry-item img {
+    filter: invert(1) hue-rotate(180deg);
+}
+
+/* Подписи к картинкам убраны */
+.masonry-item .filename {
+    display: none;
+}
+
+.loading-placeholder {
+    background: linear-gradient(90deg, var(--shadow-color) 25%, transparent 50%, var(--shadow-color) 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    min-height: 200px;
+    border-radius: 4px;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.loader {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-secondary);
+}
+
+.terminal-loader {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Noto Serif', serif;
+    font-weight: 200;
+    font-size: 1rem;
+    color: var(--text-secondary);
+}
+
+.loading-indicator {
+    font-family: 'Courier New', monospace;
+    font-size: 1.2rem;
+    font-weight: normal;
+    display: inline-block;
+    margin-left: 5px;
+    color: var(--text-secondary);
+}
+
+/* Error message */
+.error {
+    color: var(--text-secondary);
+    font-family: 'Noto Serif', serif;
+    font-weight: 200;
+    font-size: 1rem;
+    text-align: center;
+    padding: 20px;
+}
+
+/* Responsive columns */
+@media (max-width: 600px) {
+    .masonry-grid {
+        gap: 10px;
+    }
+    .masonry-column {
+        gap: 10px;
+    }
+}
+
