@@ -12,6 +12,8 @@ export class MasonryGallery {
         this.observer = null
         this.mobileItems = [] // Храним все элементы для мобильных
         this.visibleRange = { start: 0, end: 50 } // Видимый диапазон
+        this.itemHeights = [] // Массив реальных высот элементов
+        this.cumulativeHeights = [] // Накопительные высоты для быстрого поиска
     }
 
     async init() {
@@ -167,6 +169,11 @@ export class MasonryGallery {
         this.loader.style.display = 'none'
         
         document.getElementById('loadedCount').textContent = this.currentIndex
+        
+        // Обновляем накопительные высоты после добавления новых элементов
+        if (this.isMobile) {
+            this.updateCumulativeHeights()
+        }
     }
 
     createImageElement(filename, index) {
@@ -177,7 +184,9 @@ export class MasonryGallery {
                     filename: filename,
                     url: `${import.meta.env.BASE_URL}mathworld_svgs/${filename}`,
                     loaded: false,
-                    element: null
+                    element: null,
+                    height: 0,
+                    aspectRatio: 1 // По умолчанию, обновится после загрузки
                 }
                 
                 // Создаём элемент только если он в видимом диапазоне
@@ -264,6 +273,50 @@ export class MasonryGallery {
         }
     }
 
+    updateCumulativeHeights() {
+        let cumulative = 0
+        this.cumulativeHeights = []
+        
+        for (let i = 0; i < this.mobileItems.length; i++) {
+            const item = this.mobileItems[i]
+            if (item) {
+                // Используем реальную высоту или оценку на основе соотношения сторон
+                const height = item.height || this.estimateHeight(item.aspectRatio)
+                this.itemHeights[i] = height
+                cumulative += height
+                this.cumulativeHeights[i] = cumulative
+            }
+        }
+    }
+    
+    estimateHeight(aspectRatio = 1) {
+        // Оценка высоты на основе ширины контейнера и соотношения сторон
+        const containerWidth = window.innerWidth - 20 // padding
+        return Math.round(containerWidth * aspectRatio) + 15 // + gap
+    }
+    
+    findIndexAtScroll(scrollTop) {
+        // Бинарный поиск индекса элемента по позиции скролла
+        let left = 0
+        let right = this.cumulativeHeights.length - 1
+        
+        while (left <= right) {
+            const mid = Math.floor((left + right) / 2)
+            const prevHeight = mid > 0 ? this.cumulativeHeights[mid - 1] : 0
+            const currHeight = this.cumulativeHeights[mid]
+            
+            if (scrollTop >= prevHeight && scrollTop < currHeight) {
+                return mid
+            } else if (scrollTop < prevHeight) {
+                right = mid - 1
+            } else {
+                left = mid + 1
+            }
+        }
+        
+        return Math.max(0, Math.min(left, this.cumulativeHeights.length - 1))
+    }
+
     createMobileElement(index) {
         const item = this.mobileItems[index]
         if (!item || item.element) return
@@ -287,6 +340,14 @@ export class MasonryGallery {
             item.loaded = true
             placeholder.style.display = 'none'
             img.style.display = 'block'
+            
+            // Сохраняем реальную высоту
+            const realHeight = img.offsetHeight + 15 // + gap
+            item.height = realHeight
+            item.aspectRatio = img.naturalHeight / img.naturalWidth
+            
+            // Обновляем накопительные высоты
+            this.updateCumulativeHeights()
         }
         
         img.onerror = () => {
@@ -317,14 +378,17 @@ export class MasonryGallery {
     }
     
     updateMobileVisibility() {
-        if (!this.isMobile) return
+        if (!this.isMobile || this.cumulativeHeights.length === 0) return
         
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop
-        const itemHeight = 215 // Приблизительная высота элемента с отступом
+        const viewportHeight = window.innerHeight
         
-        // Расчитываем новый видимый диапазон
-        const newStart = Math.max(0, Math.floor(scrollTop / itemHeight) - 10)
-        const newEnd = Math.min(this.mobileItems.length - 1, Math.ceil((scrollTop + window.innerHeight * 2) / itemHeight) + 10)
+        // Находим видимый диапазон на основе реальных высот
+        const startIndex = this.findIndexAtScroll(Math.max(0, scrollTop - 500))
+        const endIndex = this.findIndexAtScroll(scrollTop + viewportHeight + 500)
+        
+        const newStart = Math.max(0, startIndex - 5)
+        const newEnd = Math.min(this.mobileItems.length - 1, endIndex + 5)
         
         // Удаляем элементы вне диапазона
         for (let i = this.visibleRange.start; i < newStart; i++) {
@@ -350,10 +414,14 @@ export class MasonryGallery {
         
         this.visibleRange = { start: newStart, end: newEnd }
         
-        // Обновляем высоты спейсеров
+        // Обновляем высоты спейсеров на основе реальных высот
         if (this.topSpacer && this.bottomSpacer) {
-            this.topSpacer.style.height = `${newStart * itemHeight}px`
-            this.bottomSpacer.style.height = `${Math.max(0, (this.mobileItems.length - newEnd - 1) * itemHeight)}px`
+            const topHeight = newStart > 0 ? this.cumulativeHeights[newStart - 1] : 0
+            const totalHeight = this.cumulativeHeights[this.cumulativeHeights.length - 1] || 0
+            const bottomHeight = Math.max(0, totalHeight - (this.cumulativeHeights[newEnd] || 0))
+            
+            this.topSpacer.style.height = `${topHeight}px`
+            this.bottomSpacer.style.height = `${bottomHeight}px`
         }
     }
 
