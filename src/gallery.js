@@ -556,9 +556,24 @@ export class MasonryGallery {
                     window.location.reload()
                 } else if (!this.isMobile) {
                     const oldColumnCount = this.columns.length
-                    this.setupColumns()
                     
-                    if (oldColumnCount !== this.columns.length) {
+                    // Определяем новое количество колонок
+                    const containerWidth = this.container.offsetWidth
+                    let newColumnCount
+                    
+                    if (containerWidth >= 1800) {
+                        newColumnCount = 4
+                    } else if (containerWidth >= 1400) {
+                        newColumnCount = 3
+                    } else if (containerWidth >= 900) {
+                        newColumnCount = 2
+                    } else {
+                        newColumnCount = 1
+                    }
+                    
+                    // Перестраиваем только если изменилось количество колонок
+                    if (oldColumnCount !== newColumnCount) {
+                        this.setupColumns()
                         this.redistributeItems()
                     }
                 }
@@ -590,25 +605,59 @@ export class MasonryGallery {
         
         const items = Array.from(this.container.querySelectorAll('.masonry-item'))
         
+        // Сохраняем состояние загрузки изображений
+        const imageStates = new Map()
+        items.forEach(item => {
+            const img = item.querySelector('img')
+            if (img) {
+                imageStates.set(item, {
+                    src: img.src,
+                    loaded: img.classList.contains('loaded')
+                })
+            }
+        })
+        
         this.columns.forEach(col => col.innerHTML = '')
         this.columnHeights.fill(0)
         
         items.forEach(item => {
             const shortestColumnIndex = this.getShortestColumnIndex()
             this.columns[shortestColumnIndex].appendChild(item)
+            
+            // Восстанавливаем состояние изображения
+            const img = item.querySelector('img')
+            const state = imageStates.get(item)
+            if (img && state) {
+                if (state.src) {
+                    img.src = state.src
+                }
+                if (state.loaded) {
+                    img.classList.add('loaded')
+                }
+            }
+            
             // Пересоздаем observer для элемента
-            this.observer.observe(item)
+            if (this.observer) {
+                this.observer.observe(item)
+            }
         })
         
-        // Проверяем видимость после перераспределения
-        setTimeout(() => {
+        // Проверяем видимость и загружаем недогруженные изображения
+        requestAnimationFrame(() => {
             items.forEach(item => {
                 const rect = item.getBoundingClientRect()
                 const img = item.querySelector('img')
-                if (rect.bottom >= 0 && rect.top <= window.innerHeight && img && !img.src && img.dataset.src) {
-                    img.src = img.dataset.src
+                if (rect.bottom >= -500 && rect.top <= window.innerHeight + 500) {
+                    if (img && !img.src && img.dataset.src) {
+                        img.src = img.dataset.src
+                    }
                 }
             })
-        }, 100)
+            
+            // Обновляем высоты колонок
+            this.columns.forEach((col, index) => {
+                this.updateColumnHeight(index)
+            })
+        })
     }
 }
