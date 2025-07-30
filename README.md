@@ -1,4 +1,4 @@
-# The Beauty of Math
+и# The Beauty of Math
 
 A visual gallery showcasing mathematical illustrations from Wolfram MathWorld.
 
