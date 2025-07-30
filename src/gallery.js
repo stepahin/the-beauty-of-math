@@ -14,6 +14,7 @@ export class MasonryGallery {
         this.visibleRange = { start: 0, end: 50 } // Видимый диапазон
         this.itemHeights = [] // Массив реальных высот элементов
         this.cumulativeHeights = [] // Накопительные высоты для быстрого поиска
+        this.viewBoxCache = new Map() // Кэш для viewBox данных SVG
     }
 
     async init() {
@@ -158,6 +159,13 @@ export class MasonryGallery {
         const endIndex = Math.min(this.currentIndex + this.batchSize, this.svgFiles.length)
         const batch = this.svgFiles.slice(this.currentIndex, endIndex)
         
+        // Для мобильных устройств предварительно загружаем viewBox данные
+        if (this.isMobile) {
+            // Загружаем viewBox данные параллельно для всего батча
+            const viewBoxPromises = batch.map(filename => this.getViewBoxData(filename))
+            await Promise.all(viewBoxPromises)
+        }
+        
         // Создаем элементы параллельно, но не ждем загрузки изображений
         const promises = batch.map((filename, idx) => 
             this.createImageElement(filename, this.currentIndex + idx)
@@ -176,76 +184,76 @@ export class MasonryGallery {
         }
     }
 
-    createImageElement(filename, index) {
-        return new Promise((resolve) => {
-            if (this.isMobile) {
-                // Сохраняем данные об элементе
-                this.mobileItems[index] = {
-                    filename: filename,
-                    url: `${import.meta.env.BASE_URL}mathworld_svgs/${filename}`,
-                    loaded: false,
-                    element: null,
-                    height: 0,
-                    aspectRatio: 1 // По умолчанию, обновится после загрузки
+    async createImageElement(filename, index) {
+        if (this.isMobile) {
+            // Получаем точные данные viewBox для правильной оценки высоты
+            const viewBoxData = await this.getViewBoxData(filename)
+            const estimatedHeight = this.estimateHeight(viewBoxData.aspectRatio)
+            
+            this.mobileItems[index] = {
+                filename: filename,
+                url: `${import.meta.env.BASE_URL}mathworld_svgs/${filename}`,
+                loaded: false,
+                element: null,
+                height: estimatedHeight, // Точная оценка на основе viewBox
+                aspectRatio: viewBoxData.aspectRatio,
+                realHeight: null,
+                heightCorrection: 0
+            }
+            
+            // Создаём элемент только если он в видимом диапазоне
+            if (index >= this.visibleRange.start && index <= this.visibleRange.end) {
+                this.createMobileElement(index)
+            }
+            
+            return
+        }
+        
+        // Десктопная версия остается без изменений
+        const item = document.createElement('div')
+        item.className = 'masonry-item'
+        
+        const placeholder = document.createElement('div')
+        placeholder.className = 'loading-placeholder'
+        item.appendChild(placeholder)
+        
+        const img = document.createElement('img')
+        img.dataset.src = `${import.meta.env.BASE_URL}mathworld_svgs/${filename}`
+        img.alt = filename
+        img.loading = 'lazy'
+        
+        img.onload = () => {
+            const placeholders = item.querySelectorAll('.loading-placeholder')
+            placeholders.forEach(p => p.remove())
+            img.classList.add('loaded')
+            this.loadedImages++
+            
+            setTimeout(() => {
+                const columnIndex = Array.from(this.columns).findIndex(col => col.contains(item))
+                if (columnIndex !== -1) {
+                    this.updateColumnHeight(columnIndex)
                 }
-                
-                // Создаём элемент только если он в видимом диапазоне
-                if (index >= this.visibleRange.start && index <= this.visibleRange.end) {
-                    this.createMobileElement(index)
-                }
-                
-                resolve()
-                return
-            }
-            
-            // Десктопная версия остается без изменений
-            const item = document.createElement('div')
-            item.className = 'masonry-item'
-            
-            const placeholder = document.createElement('div')
-            placeholder.className = 'loading-placeholder'
-            item.appendChild(placeholder)
-            
-            const img = document.createElement('img')
-            img.dataset.src = `${import.meta.env.BASE_URL}mathworld_svgs/${filename}`
-            img.alt = filename
-            img.loading = 'lazy'
-            
-            img.onload = () => {
-                const placeholders = item.querySelectorAll('.loading-placeholder')
-                placeholders.forEach(p => p.remove())
-                img.classList.add('loaded')
-                this.loadedImages++
-                
-                setTimeout(() => {
-                    const columnIndex = Array.from(this.columns).findIndex(col => col.contains(item))
-                    if (columnIndex !== -1) {
-                        this.updateColumnHeight(columnIndex)
-                    }
-                }, 100)
-            }
-            
-            img.onerror = () => {
-                console.error(`Failed to load: ${filename}`)
-                item.remove()
-            }
-            
-            item.appendChild(img)
-            
-            const shortestColumnIndex = this.getShortestColumnIndex()
-            this.columns[shortestColumnIndex].appendChild(item)
-            
-            if (this.observer) {
-                this.observer.observe(item)
-            }
-            
-            const rect = item.getBoundingClientRect()
-            if (rect.bottom >= -500 && rect.top <= window.innerHeight + 500) {
-                img.src = img.dataset.src
-            }
-            
-            resolve()
-        })
+            }, 100)
+        }
+        
+        img.onerror = () => {
+            console.error(`Failed to load: ${filename}`)
+            item.remove()
+        }
+        
+        item.appendChild(img)
+        
+        const shortestColumnIndex = this.getShortestColumnIndex()
+        this.columns[shortestColumnIndex].appendChild(item)
+        
+        if (this.observer) {
+            this.observer.observe(item)
+        }
+        
+        const rect = item.getBoundingClientRect()
+        if (rect.bottom >= -500 && rect.top <= window.innerHeight + 500) {
+            img.src = img.dataset.src
+        }
     }
 
     getShortestColumnIndex() {
@@ -276,14 +284,16 @@ export class MasonryGallery {
     updateCumulativeHeights() {
         let cumulative = 0
         this.cumulativeHeights = []
+        const gap = 15
         
         for (let i = 0; i < this.mobileItems.length; i++) {
             const item = this.mobileItems[i]
             if (item) {
-                // Используем реальную высоту или оценку на основе соотношения сторон
-                const height = item.height || this.estimateHeight(item.aspectRatio)
+                // Используем начальную оценку высоты (не меняем после загрузки)
+                const height = item.height
                 this.itemHeights[i] = height
                 cumulative += height
+                if (i > 0) cumulative += gap // Добавляем gap между элементами
                 this.cumulativeHeights[i] = cumulative
             }
         }
@@ -292,7 +302,39 @@ export class MasonryGallery {
     estimateHeight(aspectRatio = 1) {
         // Оценка высоты на основе ширины контейнера и соотношения сторон
         const containerWidth = window.innerWidth - 20 // padding
-        return Math.round(containerWidth * aspectRatio) + 15 // + gap
+        return Math.round(containerWidth * aspectRatio)
+    }
+    
+    async getViewBoxData(filename) {
+        // Проверяем кэш
+        if (this.viewBoxCache.has(filename)) {
+            return this.viewBoxCache.get(filename)
+        }
+        
+        try {
+            const url = `${import.meta.env.BASE_URL}mathworld_svgs/${filename}`
+            const response = await fetch(url)
+            const text = await response.text()
+            
+            // Парсим viewBox из SVG
+            const viewBoxMatch = text.match(/viewBox=["']([^"']+)["']/i)
+            if (viewBoxMatch) {
+                const [x, y, width, height] = viewBoxMatch[1].split(/\s+/).map(Number)
+                const aspectRatio = height / width
+                
+                // Сохраняем в кэш
+                const data = { aspectRatio, width, height }
+                this.viewBoxCache.set(filename, data)
+                return data
+            }
+        } catch (error) {
+            console.error(`Failed to load viewBox for ${filename}:`, error)
+        }
+        
+        // Возвращаем дефолтное значение при ошибке
+        const defaultData = { aspectRatio: 0.7, width: 100, height: 70 }
+        this.viewBoxCache.set(filename, defaultData)
+        return defaultData
     }
     
     findIndexAtScroll(scrollTop) {
@@ -325,6 +367,9 @@ export class MasonryGallery {
         wrapper.className = 'mobile-image-wrapper'
         wrapper.dataset.index = index
         
+        // Устанавливаем минимальную высоту на основе оценки
+        wrapper.style.minHeight = `${item.height}px`
+        
         const placeholder = document.createElement('div')
         placeholder.className = 'mobile-placeholder'
         wrapper.appendChild(placeholder)
@@ -341,13 +386,15 @@ export class MasonryGallery {
             placeholder.style.display = 'none'
             img.style.display = 'block'
             
-            // Сохраняем реальную высоту
-            const realHeight = img.offsetHeight + 15 // + gap
-            item.height = realHeight
+            // Сохраняем реальную высоту и соотношение сторон
+            const realHeight = wrapper.offsetHeight + 15 // реальная высота wrapper + gap
+            item.realHeight = realHeight
             item.aspectRatio = img.naturalHeight / img.naturalWidth
             
-            // Обновляем накопительные высоты
-            this.updateCumulativeHeights()
+            // НЕ обновляем cumulativeHeights чтобы избежать прыжков
+            // Вместо этого сохраняем коррекцию для локального использования
+            const estimatedHeight = item.height || this.estimateHeight(item.aspectRatio)
+            item.heightCorrection = realHeight - estimatedHeight
         }
         
         img.onerror = () => {
@@ -377,7 +424,7 @@ export class MasonryGallery {
         return -1
     }
     
-    updateMobileVisibility() {
+    async updateMobileVisibility() {
         if (!this.isMobile || this.cumulativeHeights.length === 0) return
         
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop
@@ -389,6 +436,17 @@ export class MasonryGallery {
         
         const newStart = Math.max(0, startIndex - 5)
         const newEnd = Math.min(this.mobileItems.length - 1, endIndex + 5)
+        
+        // Предварительно загружаем viewBox для новых элементов
+        const viewBoxPromises = []
+        for (let i = newStart; i <= newEnd; i++) {
+            if (this.mobileItems[i] && !this.mobileItems[i].element && !this.viewBoxCache.has(this.mobileItems[i].filename)) {
+                viewBoxPromises.push(this.getViewBoxData(this.mobileItems[i].filename))
+            }
+        }
+        if (viewBoxPromises.length > 0) {
+            await Promise.all(viewBoxPromises)
+        }
         
         // Удаляем элементы вне диапазона
         for (let i = this.visibleRange.start; i < newStart; i++) {
@@ -414,14 +472,33 @@ export class MasonryGallery {
         
         this.visibleRange = { start: newStart, end: newEnd }
         
-        // Обновляем высоты спейсеров на основе реальных высот
+        // Обновляем высоты спейсеров на основе оценок
         if (this.topSpacer && this.bottomSpacer) {
+            // Запоминаем текущую позицию для стабильности
+            const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop
+            
             const topHeight = newStart > 0 ? this.cumulativeHeights[newStart - 1] : 0
             const totalHeight = this.cumulativeHeights[this.cumulativeHeights.length - 1] || 0
             const bottomHeight = Math.max(0, totalHeight - (this.cumulativeHeights[newEnd] || 0))
             
-            this.topSpacer.style.height = `${topHeight}px`
-            this.bottomSpacer.style.height = `${bottomHeight}px`
+            // Применяем только если изменения значительные
+            const currentTopHeight = parseFloat(this.topSpacer.style.height) || 0
+            const diff = Math.abs(topHeight - currentTopHeight)
+            
+            if (diff > 1) {
+                this.topSpacer.style.height = `${topHeight}px`
+                this.bottomSpacer.style.height = `${bottomHeight}px`
+                
+                // Корректируем позицию скролла если нужно
+                if (diff > 10) {
+                    requestAnimationFrame(() => {
+                        const newScrollTop = window.pageYOffset || document.documentElement.scrollTop
+                        if (Math.abs(newScrollTop - currentScrollTop) > 5) {
+                            window.scrollTo(0, currentScrollTop)
+                        }
+                    })
+                }
+            }
         }
     }
 
