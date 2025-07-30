@@ -3,13 +3,13 @@ export class MasonryGallery {
         this.svgFiles = svgFiles
         this.loadedImages = 0
         this.currentIndex = 0
-        this.batchSize = 30 // Уменьшаем размер батча
+        this.isMobile = window.innerWidth <= 768
+        this.batchSize = this.isMobile ? 10 : 30 // Меньше батч для мобильных
         this.columns = []
         this.columnHeights = []
         this.isLoading = false
         this.visibleItems = new Set()
         this.observer = null
-        this.isMobile = window.innerWidth <= 768
     }
 
     async init() {
@@ -151,21 +151,39 @@ export class MasonryGallery {
     createImageElement(filename) {
         return new Promise((resolve) => {
             if (this.isMobile) {
-                // Упрощенная версия для мобильных
+                // Версия для мобильных с плейсхолдером
+                const wrapper = document.createElement('div')
+                wrapper.className = 'mobile-image-wrapper'
+                
+                // Добавляем плейсхолдер
+                const placeholder = document.createElement('div')
+                placeholder.className = 'mobile-placeholder'
+                wrapper.appendChild(placeholder)
+                
                 const img = document.createElement('img')
-                img.src = `${import.meta.env.BASE_URL}mathworld_svgs/${filename}`
+                img.dataset.src = `${import.meta.env.BASE_URL}mathworld_svgs/${filename}`
                 img.alt = filename
                 img.className = 'mobile-image'
+                img.style.display = 'none'
+                
+                // Загружаем изображение с задержкой для батчей
+                setTimeout(() => {
+                    img.src = img.dataset.src
+                }, 50 * (this.currentIndex % this.batchSize))
                 
                 img.onload = () => {
                     this.loadedImages++
+                    placeholder.style.display = 'none'
+                    img.style.display = 'block'
                 }
                 
                 img.onerror = () => {
                     console.error(`Failed to load: ${filename}`)
+                    wrapper.remove()
                 }
                 
-                this.container.appendChild(img)
+                wrapper.appendChild(img)
+                this.container.appendChild(wrapper)
                 resolve()
                 return
             }
@@ -288,7 +306,8 @@ export class MasonryGallery {
         const documentHeight = document.documentElement.scrollHeight
         
         // Загружаем больше при приближении к низу
-        if (scrollTop + windowHeight >= documentHeight - 1000) {
+        const threshold = this.isMobile ? 500 : 1000 // Меньше порог для мобильных
+        if (scrollTop + windowHeight >= documentHeight - threshold && !this.isLoading) {
             this.loadBatch()
         }
     }
