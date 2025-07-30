@@ -265,14 +265,14 @@ body {
     
     .mobile-spacer {
         width: 100%;
-        transition: height 0.1s ease-out;
-        will-change: height;
     }
     
     .mobile-visible-container {
         display: flex;
         flex-direction: column;
         gap: 15px;
+        transform: translateZ(0); /* Активируем GPU ускорение */
+        backface-visibility: hidden; /* Предотвращаем мерцание */
     }
     
     .mobile-image-wrapper {
@@ -298,6 +298,8 @@ body {
         width: 100%;
         height: auto;
         display: block;
+        transform: translateZ(0); /* GPU ускорение */
+        backface-visibility: hidden;
     }
     
     /* Инверсия для темной темы */

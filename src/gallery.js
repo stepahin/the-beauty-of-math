@@ -11,7 +11,7 @@ export class MasonryGallery {
         this.visibleItems = new Set()
         this.observer = null
         this.mobileItems = [] // Храним все элементы для мобильных
-        this.visibleRange = { start: 0, end: 50 } // Видимый диапазон
+        this.visibleRange = { start: 0, end: 100 } // Увеличенный видимый диапазон для плавности
         this.itemHeights = [] // Массив реальных высот элементов
         this.cumulativeHeights = [] // Накопительные высоты для быстрого поиска
         this.viewBoxCache = new Map() // Кэш для viewBox данных SVG
@@ -29,6 +29,12 @@ export class MasonryGallery {
         this.setupIntersectionObserver()
         this.setupLoaderAnimation()
         await this.loadBatch()
+        
+        // Создаём первые видимые элементы на мобильных
+        if (this.isMobile) {
+            await this.updateMobileVisibility()
+        }
+        
         this.setupEventListeners()
     }
 
@@ -426,18 +432,44 @@ export class MasonryGallery {
         return -1
     }
     
+    // Быстрое обновление только загрузки изображений без изменения DOM
+    updateMobileImagesLoading() {
+        if (!this.isMobile) return
+        
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+        const viewportHeight = window.innerHeight
+        
+        // Проверяем изображения в текущем видимом диапазоне
+        for (let i = this.visibleRange.start; i <= this.visibleRange.end; i++) {
+            const item = this.mobileItems[i]
+            if (!item || !item.element) continue
+            
+            const img = item.element.querySelector('img')
+            if (!img) continue
+            
+            // Проверяем позицию элемента
+            const rect = item.element.getBoundingClientRect()
+            const isNearViewport = rect.bottom >= -200 && rect.top <= viewportHeight + 200
+            
+            // Загружаем изображение если оно близко к viewport
+            if (isNearViewport && !img.src && !item.loaded) {
+                img.src = item.url
+            }
+        }
+    }
+    
     async updateMobileVisibility() {
         if (!this.isMobile || this.cumulativeHeights.length === 0) return
         
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop
         const viewportHeight = window.innerHeight
         
-        // Находим видимый диапазон на основе реальных высот
-        const startIndex = this.findIndexAtScroll(Math.max(0, scrollTop - 500))
-        const endIndex = this.findIndexAtScroll(scrollTop + viewportHeight + 500)
+        // Находим видимый диапазон с большим буфером для плавности
+        const startIndex = this.findIndexAtScroll(Math.max(0, scrollTop - 1000))
+        const endIndex = this.findIndexAtScroll(scrollTop + viewportHeight + 1000)
         
-        const newStart = Math.max(0, startIndex - 5)
-        const newEnd = Math.min(this.mobileItems.length - 1, endIndex + 5)
+        const newStart = Math.max(0, startIndex - 10)
+        const newEnd = Math.min(this.mobileItems.length - 1, endIndex + 10)
         
         // Предварительно загружаем viewBox для новых элементов
         const viewBoxPromises = []
@@ -540,9 +572,9 @@ export class MasonryGallery {
         const windowHeight = window.innerHeight
         const documentHeight = document.documentElement.scrollHeight
         
-        // Обновляем видимость для мобильных
-        if (this.isMobile) {
-            this.updateMobileVisibility()
+        // Во время активного скролла только обновляем загрузку изображений
+        if (this.isMobile && this.isScrolling) {
+            this.updateMobileImagesLoading()
         }
         
         // Загружаем больше при приближении к низу
