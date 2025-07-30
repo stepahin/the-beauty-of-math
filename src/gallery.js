@@ -94,6 +94,9 @@ export class MasonryGallery {
             numColumns = 1
         }
         
+        // Сохраняем существующие элементы перед очисткой
+        const existingItems = Array.from(this.container.querySelectorAll('.masonry-item'))
+        
         this.container.innerHTML = ''
         this.container.className = 'masonry-grid'
         this.columns = []
@@ -105,6 +108,17 @@ export class MasonryGallery {
             this.container.appendChild(column)
             this.columns.push(column)
             this.columnHeights.push(0)
+        }
+        
+        // Если были элементы, перераспределяем их
+        if (existingItems.length > 0) {
+            existingItems.forEach(item => {
+                const shortestColumnIndex = this.getShortestColumnIndex()
+                this.columns[shortestColumnIndex].appendChild(item)
+                if (this.observer) {
+                    this.observer.observe(item)
+                }
+            })
         }
     }
 
@@ -604,6 +618,9 @@ export class MasonryGallery {
         if (this.isMobile) return
         
         const items = Array.from(this.container.querySelectorAll('.masonry-item'))
+        
+        // Если нет элементов или колонок, выходим
+        if (!items.length || !this.columns.length) return
         
         // Сохраняем состояние загрузки изображений
         const imageStates = new Map()
