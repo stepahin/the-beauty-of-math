@@ -260,10 +260,13 @@ body {
     .mobile-container {
         display: block;
         position: relative;
+        will-change: scroll-position;
     }
     
     .mobile-spacer {
         width: 100%;
+        transition: height 0.1s ease-out;
+        will-change: height;
     }
     
     .mobile-visible-container {

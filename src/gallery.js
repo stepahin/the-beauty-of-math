@@ -15,6 +15,8 @@ export class MasonryGallery {
         this.itemHeights = [] // Массив реальных высот элементов
         this.cumulativeHeights = [] // Накопительные высоты для быстрого поиска
         this.viewBoxCache = new Map() // Кэш для viewBox данных SVG
+        this.isScrolling = false // Флаг активного скролла
+        this.scrollEndTimer = null // Таймер для определения конца скролла
     }
 
     async init() {
@@ -472,33 +474,14 @@ export class MasonryGallery {
         
         this.visibleRange = { start: newStart, end: newEnd }
         
-        // Обновляем высоты спейсеров на основе оценок
-        if (this.topSpacer && this.bottomSpacer) {
-            // Запоминаем текущую позицию для стабильности
-            const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop
-            
+        // Обновляем высоты спейсеров только если не активный скролл
+        if (this.topSpacer && this.bottomSpacer && !this.isScrolling) {
             const topHeight = newStart > 0 ? this.cumulativeHeights[newStart - 1] : 0
             const totalHeight = this.cumulativeHeights[this.cumulativeHeights.length - 1] || 0
             const bottomHeight = Math.max(0, totalHeight - (this.cumulativeHeights[newEnd] || 0))
             
-            // Применяем только если изменения значительные
-            const currentTopHeight = parseFloat(this.topSpacer.style.height) || 0
-            const diff = Math.abs(topHeight - currentTopHeight)
-            
-            if (diff > 1) {
-                this.topSpacer.style.height = `${topHeight}px`
-                this.bottomSpacer.style.height = `${bottomHeight}px`
-                
-                // Корректируем позицию скролла если нужно
-                if (diff > 10) {
-                    requestAnimationFrame(() => {
-                        const newScrollTop = window.pageYOffset || document.documentElement.scrollTop
-                        if (Math.abs(newScrollTop - currentScrollTop) > 5) {
-                            window.scrollTo(0, currentScrollTop)
-                        }
-                    })
-                }
-            }
+            this.topSpacer.style.height = `${topHeight}px`
+            this.bottomSpacer.style.height = `${bottomHeight}px`
         }
     }
 
@@ -506,6 +489,19 @@ export class MasonryGallery {
         // Оптимизированный скролл
         let ticking = false
         window.addEventListener('scroll', () => {
+            // Устанавливаем флаг активного скролла
+            this.isScrolling = true
+            
+            // Сбрасываем таймер конца скролла
+            clearTimeout(this.scrollEndTimer)
+            this.scrollEndTimer = setTimeout(() => {
+                this.isScrolling = false
+                // Обновляем спейсеры после окончания скролла
+                if (this.isMobile) {
+                    this.updateMobileVisibility()
+                }
+            }, 150)
+            
             if (!ticking) {
                 window.requestAnimationFrame(() => {
                     this.handleScroll()
@@ -513,7 +509,7 @@ export class MasonryGallery {
                 })
                 ticking = true
             }
-        })
+        }, { passive: true })
         
         // Ресайз окна
         let resizeTimeout
