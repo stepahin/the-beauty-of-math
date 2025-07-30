@@ -237,10 +237,17 @@ body {
 @media (max-width: 768px) {
     body {
         padding: 10px;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    html, body {
+        height: auto;
+        overflow: auto;
     }
     
     .header {
-        padding-top: 80px; /* Учитываем фиксированные элементы */
+        padding-top: 80px;
         margin-bottom: 30px;
     }
     
@@ -249,36 +256,22 @@ body {
         margin-bottom: 20px;
     }
     
-    /* Мобильная сетка - простой вертикальный список */
-    .masonry-grid.mobile-grid {
-        display: block;
-        gap: 0;
+    /* Мобильный контейнер */
+    .mobile-container {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
     }
     
-    .mobile-item {
-        margin-bottom: 20px;
-        background: transparent;
-        padding: 10px;
-    }
-    
-    .mobile-item img {
+    .mobile-image {
         width: 100%;
         height: auto;
         display: block;
-        opacity: 1; /* Сразу видимые на мобильных */
     }
     
-    /* Убираем placeholder на мобильных */
-    .mobile-item .loading-placeholder {
-        display: none;
-    }
-    
-    /* Фиксированные элементы управления */
-    .top-controls {
-        background: var(--bg-color);
-        padding: 10px;
-        border-radius: 20px;
-        box-shadow: 0 2px 10px var(--shadow-color);
+    /* Инверсия для темной темы */
+    [data-theme="dark"] .mobile-image {
+        filter: invert(1) hue-rotate(180deg);
     }
     
     .load-counter {

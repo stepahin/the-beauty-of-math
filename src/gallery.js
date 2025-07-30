@@ -45,11 +45,8 @@ export class MasonryGallery {
         this.isMobile = window.innerWidth <= 768
         
         if (this.isMobile) {
-            // Для мобильных не создаем колонки
-            this.container.innerHTML = ''
-            this.container.className = 'masonry-grid mobile-grid'
-            this.columns = [this.container] // Используем сам контейнер как единственную "колонку"
-            this.columnHeights = [0]
+            // Для мобильных - простой контейнер
+            this.container.className = 'mobile-container'
             return
         }
         
@@ -84,11 +81,6 @@ export class MasonryGallery {
     setupIntersectionObserver() {
         // Для мобильных устройств отключаем виртуализацию
         if (this.isMobile) {
-            this.observer = {
-                observe: () => {}, // Пустая функция для мобильных
-                unobserve: () => {},
-                disconnect: () => {}
-            }
             return
         }
         
@@ -158,54 +150,51 @@ export class MasonryGallery {
 
     createImageElement(filename) {
         return new Promise((resolve) => {
-            const item = document.createElement('div')
-            item.className = this.isMobile ? 'mobile-item' : 'masonry-item'
-            
-            if (!this.isMobile) {
-                // Для десктопа - placeholder
-                const placeholder = document.createElement('div')
-                placeholder.className = 'loading-placeholder'
-                item.appendChild(placeholder)
+            if (this.isMobile) {
+                // Упрощенная версия для мобильных
+                const img = document.createElement('img')
+                img.src = `${import.meta.env.BASE_URL}mathworld_svgs/${filename}`
+                img.alt = filename
+                img.className = 'mobile-image'
+                
+                img.onload = () => {
+                    this.loadedImages++
+                }
+                
+                img.onerror = () => {
+                    console.error(`Failed to load: ${filename}`)
+                }
+                
+                this.container.appendChild(img)
+                resolve()
+                return
             }
+            
+            // Десктопная версия остается без изменений
+            const item = document.createElement('div')
+            item.className = 'masonry-item'
+            
+            const placeholder = document.createElement('div')
+            placeholder.className = 'loading-placeholder'
+            item.appendChild(placeholder)
             
             const img = document.createElement('img')
-            const imgUrl = `${import.meta.env.BASE_URL}mathworld_svgs/${filename}`
-            
-            if (this.isMobile) {
-                // На мобильных сразу устанавливаем src
-                img.src = imgUrl
-            } else {
-                // На десктопе используем lazy loading
-                img.dataset.src = imgUrl
-                img.loading = 'lazy'
-            }
-            
+            img.dataset.src = `${import.meta.env.BASE_URL}mathworld_svgs/${filename}`
             img.alt = filename
+            img.loading = 'lazy'
             
             img.onload = () => {
-                if (!this.isMobile) {
-                    // Удаляем placeholder только для десктопа
-                    const placeholders = item.querySelectorAll('.loading-placeholder')
-                    placeholders.forEach(p => p.remove())
-                    img.classList.add('loaded')
-                }
-                
+                const placeholders = item.querySelectorAll('.loading-placeholder')
+                placeholders.forEach(p => p.remove())
+                img.classList.add('loaded')
                 this.loadedImages++
                 
-                const label = document.createElement('div')
-                label.className = 'filename'
-                label.textContent = filename.replace('.svg', '')
-                item.appendChild(label)
-                
-                // Обновляем высоту колонки только для десктопа
-                if (!this.isMobile) {
-                    setTimeout(() => {
-                        const columnIndex = Array.from(this.columns).findIndex(col => col.contains(item))
-                        if (columnIndex !== -1) {
-                            this.updateColumnHeight(columnIndex)
-                        }
-                    }, 100)
-                }
+                setTimeout(() => {
+                    const columnIndex = Array.from(this.columns).findIndex(col => col.contains(item))
+                    if (columnIndex !== -1) {
+                        this.updateColumnHeight(columnIndex)
+                    }
+                }, 100)
             }
             
             img.onerror = () => {
@@ -215,29 +204,26 @@ export class MasonryGallery {
             
             item.appendChild(img)
             
-            // Добавляем элемент в колонку/контейнер
             const shortestColumnIndex = this.getShortestColumnIndex()
             this.columns[shortestColumnIndex].appendChild(item)
             
-            // Наблюдаем за элементом только на десктопе
-            if (!this.isMobile && this.observer) {
+            if (this.observer) {
                 this.observer.observe(item)
             }
             
-            // Для десктопа проверяем видимость
-            if (!this.isMobile) {
-                const rect = item.getBoundingClientRect()
-                if (rect.bottom >= -500 && rect.top <= window.innerHeight + 500) {
-                    img.src = img.dataset.src
-                }
+            const rect = item.getBoundingClientRect()
+            if (rect.bottom >= -500 && rect.top <= window.innerHeight + 500) {
+                img.src = img.dataset.src
             }
             
-            // Сразу резолвим промис
             resolve()
         })
     }
 
     getShortestColumnIndex() {
+        // Для мобильных возвращаем 0
+        if (this.isMobile || !this.columns.length) return 0
+        
         // Находим колонку с минимальной высотой
         let minHeight = this.columns[0].offsetHeight
         let minIndex = 0
@@ -277,11 +263,19 @@ export class MasonryGallery {
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimeout)
             resizeTimeout = setTimeout(() => {
-                const oldColumnCount = this.columns.length
-                this.setupColumns()
+                const wasMobile = this.isMobile
+                const isNowMobile = window.innerWidth <= 768
                 
-                if (oldColumnCount !== this.columns.length) {
-                    this.redistributeItems()
+                if (wasMobile !== isNowMobile) {
+                    // Перезагружаем страницу при смене режима
+                    window.location.reload()
+                } else if (!this.isMobile) {
+                    const oldColumnCount = this.columns.length
+                    this.setupColumns()
+                    
+                    if (oldColumnCount !== this.columns.length) {
+                        this.redistributeItems()
+                    }
                 }
             }, 250)
         })
