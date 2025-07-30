@@ -10,6 +10,8 @@ export class MasonryGallery {
         this.isLoading = false
         this.visibleItems = new Set()
         this.observer = null
+        this.mobileItems = [] // Храним все элементы для мобильных
+        this.visibleRange = { start: 0, end: 50 } // Видимый диапазон
     }
 
     async init() {
@@ -45,8 +47,25 @@ export class MasonryGallery {
         this.isMobile = window.innerWidth <= 768
         
         if (this.isMobile) {
-            // Для мобильных - простой контейнер
+            // Для мобильных - простой контейнер со спейсерами
             this.container.className = 'mobile-container'
+            this.container.innerHTML = ''
+            
+            // Верхний спейсер
+            this.topSpacer = document.createElement('div')
+            this.topSpacer.className = 'mobile-spacer'
+            this.container.appendChild(this.topSpacer)
+            
+            // Контейнер для видимых элементов
+            this.visibleContainer = document.createElement('div')
+            this.visibleContainer.className = 'mobile-visible-container'
+            this.container.appendChild(this.visibleContainer)
+            
+            // Нижний спейсер
+            this.bottomSpacer = document.createElement('div')
+            this.bottomSpacer.className = 'mobile-spacer'
+            this.container.appendChild(this.bottomSpacer)
+            
             return
         }
         
@@ -138,7 +157,9 @@ export class MasonryGallery {
         const batch = this.svgFiles.slice(this.currentIndex, endIndex)
         
         // Создаем элементы параллельно, но не ждем загрузки изображений
-        const promises = batch.map(filename => this.createImageElement(filename))
+        const promises = batch.map((filename, idx) => 
+            this.createImageElement(filename, this.currentIndex + idx)
+        )
         await Promise.all(promises)
         
         this.currentIndex = endIndex
@@ -148,42 +169,22 @@ export class MasonryGallery {
         document.getElementById('loadedCount').textContent = this.currentIndex
     }
 
-    createImageElement(filename) {
+    createImageElement(filename, index) {
         return new Promise((resolve) => {
             if (this.isMobile) {
-                // Версия для мобильных с плейсхолдером
-                const wrapper = document.createElement('div')
-                wrapper.className = 'mobile-image-wrapper'
-                
-                // Добавляем плейсхолдер
-                const placeholder = document.createElement('div')
-                placeholder.className = 'mobile-placeholder'
-                wrapper.appendChild(placeholder)
-                
-                const img = document.createElement('img')
-                img.dataset.src = `${import.meta.env.BASE_URL}mathworld_svgs/${filename}`
-                img.alt = filename
-                img.className = 'mobile-image'
-                img.style.display = 'none'
-                
-                // Загружаем изображение с задержкой для батчей
-                setTimeout(() => {
-                    img.src = img.dataset.src
-                }, 50 * (this.currentIndex % this.batchSize))
-                
-                img.onload = () => {
-                    this.loadedImages++
-                    placeholder.style.display = 'none'
-                    img.style.display = 'block'
+                // Сохраняем данные об элементе
+                this.mobileItems[index] = {
+                    filename: filename,
+                    url: `${import.meta.env.BASE_URL}mathworld_svgs/${filename}`,
+                    loaded: false,
+                    element: null
                 }
                 
-                img.onerror = () => {
-                    console.error(`Failed to load: ${filename}`)
-                    wrapper.remove()
+                // Создаём элемент только если он в видимом диапазоне
+                if (index >= this.visibleRange.start && index <= this.visibleRange.end) {
+                    this.createMobileElement(index)
                 }
                 
-                wrapper.appendChild(img)
-                this.container.appendChild(wrapper)
                 resolve()
                 return
             }
@@ -263,6 +264,99 @@ export class MasonryGallery {
         }
     }
 
+    createMobileElement(index) {
+        const item = this.mobileItems[index]
+        if (!item || item.element) return
+        
+        const wrapper = document.createElement('div')
+        wrapper.className = 'mobile-image-wrapper'
+        wrapper.dataset.index = index
+        
+        const placeholder = document.createElement('div')
+        placeholder.className = 'mobile-placeholder'
+        wrapper.appendChild(placeholder)
+        
+        const img = document.createElement('img')
+        img.src = item.url
+        img.alt = item.filename
+        img.className = 'mobile-image'
+        img.style.display = 'none'
+        
+        img.onload = () => {
+            this.loadedImages++
+            item.loaded = true
+            placeholder.style.display = 'none'
+            img.style.display = 'block'
+        }
+        
+        img.onerror = () => {
+            console.error(`Failed to load: ${item.filename}`)
+            wrapper.style.display = 'none'
+        }
+        
+        wrapper.appendChild(img)
+        item.element = wrapper
+        
+        // Вставляем в правильное место в видимом контейнере
+        const nextIndex = this.findNextVisibleIndex(index)
+        if (nextIndex !== -1) {
+            const nextElement = this.mobileItems[nextIndex].element
+            this.visibleContainer.insertBefore(wrapper, nextElement)
+        } else {
+            this.visibleContainer.appendChild(wrapper)
+        }
+    }
+    
+    findNextVisibleIndex(index) {
+        for (let i = index + 1; i < this.mobileItems.length; i++) {
+            if (this.mobileItems[i] && this.mobileItems[i].element) {
+                return i
+            }
+        }
+        return -1
+    }
+    
+    updateMobileVisibility() {
+        if (!this.isMobile) return
+        
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+        const itemHeight = 215 // Приблизительная высота элемента с отступом
+        
+        // Расчитываем новый видимый диапазон
+        const newStart = Math.max(0, Math.floor(scrollTop / itemHeight) - 10)
+        const newEnd = Math.min(this.mobileItems.length - 1, Math.ceil((scrollTop + window.innerHeight * 2) / itemHeight) + 10)
+        
+        // Удаляем элементы вне диапазона
+        for (let i = this.visibleRange.start; i < newStart; i++) {
+            if (this.mobileItems[i] && this.mobileItems[i].element) {
+                this.mobileItems[i].element.remove()
+                this.mobileItems[i].element = null
+            }
+        }
+        
+        for (let i = newEnd + 1; i <= this.visibleRange.end; i++) {
+            if (this.mobileItems[i] && this.mobileItems[i].element) {
+                this.mobileItems[i].element.remove()
+                this.mobileItems[i].element = null
+            }
+        }
+        
+        // Создаём новые элементы в диапазоне
+        for (let i = newStart; i <= newEnd; i++) {
+            if (this.mobileItems[i] && !this.mobileItems[i].element) {
+                this.createMobileElement(i)
+            }
+        }
+        
+        this.visibleRange = { start: newStart, end: newEnd }
+        
+        // Обновляем высоты спейсеров
+        if (this.topSpacer && this.bottomSpacer) {
+            this.topSpacer.style.height = `${newStart * itemHeight}px`
+            this.bottomSpacer.style.height = `${Math.max(0, (this.mobileItems.length - newEnd - 1) * itemHeight)}px`
+        }
+    }
+
     setupEventListeners() {
         // Оптимизированный скролл
         let ticking = false
@@ -304,6 +398,11 @@ export class MasonryGallery {
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop
         const windowHeight = window.innerHeight
         const documentHeight = document.documentElement.scrollHeight
+        
+        // Обновляем видимость для мобильных
+        if (this.isMobile) {
+            this.updateMobileVisibility()
+        }
         
         // Загружаем больше при приближении к низу
         const threshold = this.isMobile ? 500 : 1000 // Меньше порог для мобильных

@@ -258,6 +258,15 @@ body {
     
     /* Мобильный контейнер */
     .mobile-container {
+        display: block;
+        position: relative;
+    }
+    
+    .mobile-spacer {
+        width: 100%;
+    }
+    
+    .mobile-visible-container {
         display: flex;
         flex-direction: column;
         gap: 15px;
