@@ -292,7 +292,7 @@ export class MasonryGallery {
     updateCumulativeHeights() {
         let cumulative = 0
         this.cumulativeHeights = []
-        const gap = 15
+        const gap = 30 // Увеличен в 2 раза с 15px до 30px
         
         for (let i = 0; i < this.mobileItems.length; i++) {
             const item = this.mobileItems[i]
@@ -395,7 +395,7 @@ export class MasonryGallery {
             img.style.display = 'block'
             
             // Сохраняем реальную высоту и соотношение сторон
-            const realHeight = wrapper.offsetHeight + 15 // реальная высота wrapper + gap
+            const realHeight = wrapper.offsetHeight + 30 // реальная высота wrapper + gap (увеличен в 2 раза)
             item.realHeight = realHeight
             item.aspectRatio = img.naturalHeight / img.naturalWidth
             

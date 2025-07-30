@@ -26,6 +26,16 @@
     --link-color: #66b3ff;
 }
 
+[data-theme="bw"] {
+    --bg-color: #000000;
+    --text-color: #e0e0e0;
+    --text-secondary: #ffffff;
+    --card-bg: transparent;
+    --shadow-color: rgba(255,255,255,0.1);
+    --shadow-hover: rgba(255,255,255,0.15);
+    --link-color: #66b3ff;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
     background-color: var(--bg-color);
@@ -75,12 +85,27 @@ body {
     height: 24px;
 }
 
-[data-theme="light"] .theme-icon.dark {
+[data-theme="light"] .theme-icon.dark,
+[data-theme="light"] .theme-icon.bw {
     opacity: 0;
 }
 
-[data-theme="dark"] .theme-icon.light {
+[data-theme="dark"] .theme-icon.light,
+[data-theme="dark"] .theme-icon.bw {
     opacity: 0;
+}
+
+[data-theme="bw"] .theme-icon.light,
+[data-theme="bw"] .theme-icon.dark {
+    opacity: 0;
+}
+
+.theme-icon.bw {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 24px;
+    text-align: center;
 }
 
 .header {
@@ -180,6 +205,11 @@ body {
     filter: invert(1) hue-rotate(180deg);
 }
 
+/* Черно-белая версия для BW темы */
+[data-theme="bw"] .masonry-item img {
+    filter: invert(1) grayscale(1);
+}
+
 /* Подписи к картинкам убраны */
 .masonry-item .filename {
     display: none;
@@ -270,7 +300,7 @@ body {
     .mobile-visible-container {
         display: flex;
         flex-direction: column;
-        gap: 15px;
+        gap: 30px; /* Увеличен в 2 раза с 15px до 30px */
         transform: translateZ(0); /* Активируем GPU ускорение */
         backface-visibility: hidden; /* Предотвращаем мерцание */
     }
@@ -305,6 +335,11 @@ body {
     /* Инверсия для темной темы */
     [data-theme="dark"] .mobile-image {
         filter: invert(1) hue-rotate(180deg);
+    }
+    
+    /* Черно-белая версия для BW темы */
+    [data-theme="bw"] .mobile-image {
+        filter: invert(1) grayscale(1);
     }
     
     .load-counter {
