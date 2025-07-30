@@ -28,8 +28,10 @@ document.getElementById('app').innerHTML = `
   <div class="header">
     <h1 class="main-title">The Beauty of&nbsp;Math</h1>
     <div class="attribution">
-      <p>All images from <a href="https://mathworld.wolfram.com" target="_blank">Wolfram MathWorld</a>, assembled by Eric W. Weisstein.</p>
-      <p>All rights belong to Wolfram Research, Inc.</p>
+      <p>2,918 math visualizations collected from <a href="https://mathworld.wolfram.com" target="_blank">MathWorld</a></p>
+      <p>MathWorld created by Eric W. Weisstein and <a href="https://www.wolfram.com/" target="_blank">Wolfram Research, Inc.</a></p>
+      <p>This page built by <a href="https://x.com/stepahin" target="_blank">Igor Stepahin</a> for visual inspiration</p>
+      <p>All images © Wolfram Research, Inc.</p>
     </div>
   </div>
 
